@@ -1,15 +1,48 @@
 """Entry point for the Financial Research Assistant demo."""
 
+from time import perf_counter
+
+from dotenv import load_dotenv
+
 from src.pipeline import run_pipeline
+
+load_dotenv()
 
 SAMPLE_QUESTION = (
     "What are the key risks for US technology equities given interest rates and AI growth trends?"
 )
 
 
+def get_question() -> str:
+    """Prompt for a research question and fall back to the sample question.
+
+    Returns:
+        The user's question, or ``SAMPLE_QUESTION`` when the user presses
+        Enter without typing a question.
+    """
+    question = input(
+        "Enter a financial research question, or press Enter to use the sample question:\n"
+        f"{SAMPLE_QUESTION}\n\n"
+        "Question: "
+    ).strip()
+    return question or SAMPLE_QUESTION
+
+
 def main() -> None:
-    response = run_pipeline(SAMPLE_QUESTION)
+    """Run a selected question and print the answer with total latency.
+
+    Returns:
+        None. The function writes the retrieval debug, answer, and latency to
+        standard output.
+    """
+    question = get_question()
+    start_time = perf_counter()
+    response = run_pipeline(question)
+    elapsed_time = perf_counter() - start_time
+
+    print("\n=== FINAL ANSWER ===\n")
     print(response)
+    print(f"\nTotal latency: {elapsed_time:.2f} seconds")
 
 
 if __name__ == "__main__":
