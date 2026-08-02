@@ -54,13 +54,13 @@ def test_retrieve_with_scores_ranks_the_closest_chunk_first() -> None:
         ),
         Document(page_content="AI spending supports growth.", metadata={"source": "ai.txt"}),
     ]
-    vector_store = FAISS.from_documents(documents, DeterministicEmbeddings())
+    vector_store = FAISS.from_documents(documents, DeterministicEmbeddings(), normalize_L2=True)
 
     results = retrieve_with_scores("How do interest rates affect equities?", vector_store)
 
     assert results[0]["document"].metadata["source"] == "rates.txt"
-    assert results[0]["score"] > results[1]["score"]
-    assert "interest" in results[0]["explanation"]
+    assert results[0]["faiss_distance"] < results[1]["faiss_distance"]
+    assert results[0]["cosine_similarity"] > results[1]["cosine_similarity"]
 
 
 def test_create_chunk_preview_shows_the_start_and_end_of_long_chunks() -> None:
@@ -79,11 +79,20 @@ def test_print_retrieval_debug_includes_chunk_location(capsys: object) -> None:
         metadata={"source": "example.txt", "start_line": 3, "end_line": 5},
     )
     print_retrieval_debug(
-        [{"document": document, "score": 0.9, "explanation": "very strong semantic match"}]
+        [
+            {
+                "document": document,
+                "faiss_distance": 0.2,
+                "cosine_similarity": 0.9,
+            }
+        ]
     )
 
     output = capsys.readouterr().out
 
+    assert "FAISS distance (lower is closer): 0.2000" in output
+    assert "Cosine similarity (higher is closer): 0.9000" in output
+    assert "Explanation:" not in output
     assert "Source: example.txt" in output
     assert "Text: one two three four five ... seven eight nine ten eleven" in output
     assert "Start line: 3" in output

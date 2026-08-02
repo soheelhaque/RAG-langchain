@@ -9,6 +9,21 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 DATA_DIRECTORY = Path("data/financial_docs")
+CHUNK_SIZE = 1_000
+CHUNK_OVERLAP = 200
+
+
+def get_document_title(document: Document) -> str:
+    """Return the note title from a source document's header.
+
+    The corpus uses a ``Title:`` header in every source file. Keeping that
+    title with each chunk gives excerpts enough subject context to be embedded
+    and retrieved independently.
+    """
+    for line in document.page_content.splitlines():
+        if line.startswith("Title:"):
+            return line
+    return ""
 
 
 def load_documents(data_directory: Path = DATA_DIRECTORY) -> list[Document]:
@@ -35,16 +50,19 @@ def split_documents(documents: list[Document]) -> list[Document]:
         documents: The source documents to split.
 
     Returns:
-        A list of approximately 500-character chunks with 100 characters of
-        overlap. Each chunk includes its starting and ending source line in
-        its metadata.
+        A list of approximately 1,000-character chunks with 200 characters of
+        overlap. Every chunk is prefixed with its source note's title and
+        includes its starting and ending source line in metadata.
     """
     document_texts = {
         str(document.metadata["source"]): document.page_content for document in documents
     }
+    document_titles = {
+        str(document.metadata["source"]): get_document_title(document) for document in documents
+    }
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
         add_start_index=True,
     )
     chunks = text_splitter.split_documents(documents)
@@ -52,10 +70,14 @@ def split_documents(documents: list[Document]) -> list[Document]:
     for chunk in chunks:
         source = str(chunk.metadata["source"])
         source_text = document_texts[source]
+        chunk_title = document_titles[source]
         start_index = chunk.metadata["start_index"]
         end_index = start_index + len(chunk.page_content)
         chunk.metadata["start_line"] = source_text.count("\n", 0, start_index) + 1
         chunk.metadata["end_line"] = source_text.count("\n", 0, max(start_index, end_index - 1)) + 1
+        chunk.metadata["title"] = chunk_title
+        if chunk_title:
+            chunk.page_content = f"{chunk_title}\n\n{chunk.page_content}"
 
     return chunks
 
@@ -70,4 +92,4 @@ def create_vector_store(chunks: list[Document]) -> FAISS:
         A FAISS vector store containing the chunks and their embeddings.
     """
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-    return FAISS.from_documents(chunks, embeddings)
+    return FAISS.from_documents(chunks, embeddings, normalize_L2=True)

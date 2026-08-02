@@ -7,42 +7,11 @@ from langchain_core.documents import Document
 
 
 class ScoredDocument(TypedDict):
-    """A retrieved document and its relevance score."""
+    """A retrieved document with its FAISS distance and cosine similarity."""
 
     document: Document
-    score: float
-    explanation: str
-
-
-def explain_match(query: str, document: Document, score: float) -> str:
-    """Describe the semantic strength and keyword overlap of a retrieved chunk.
-
-    Args:
-        query: The financial research question used for retrieval.
-        document: A retrieved document chunk.
-        score: The chunk's FAISS relevance score.
-
-    Returns:
-        A short explanation of the match strength and direct keyword overlap.
-    """
-    if score > 0.85:
-        strength = "very strong semantic match"
-    elif score > 0.75:
-        strength = "strong semantic match"
-    elif score > 0.65:
-        strength = "moderate semantic match"
-    else:
-        strength = "weak semantic similarity"
-
-    query_terms = set(query.lower().split())
-    document_terms = set(document.page_content.lower().split())
-    overlap = sorted(query_terms.intersection(document_terms))
-    overlap_text = (
-        f"Keyword overlap detected: {', '.join(overlap[:5])}"
-        if overlap
-        else "No direct keyword overlap (semantic match only)"
-    )
-    return f"{strength}. {overlap_text}"
+    faiss_distance: float
+    cosine_similarity: float
 
 
 def retrieve_with_scores(
@@ -50,7 +19,7 @@ def retrieve_with_scores(
     vector_store: FAISS,
     k: int = 4,
 ) -> list[ScoredDocument]:
-    """Retrieve the most relevant chunks and their FAISS relevance scores.
+    """Retrieve the most relevant chunks with comparable similarity scores.
 
     Args:
         query: The financial research question used for similarity search.
@@ -58,18 +27,24 @@ def retrieve_with_scores(
         k: The maximum number of chunks to return.
 
     Returns:
-        Up to ``k`` retrieved chunks, each paired with a relevance score where
-        higher values indicate a closer semantic match.
+        Up to ``k`` retrieved chunks, each paired with its raw FAISS squared
+        L2 distance and cosine similarity. FAISS distance is lower for closer
+        matches; cosine similarity is higher for closer matches.
     """
-    document_scores = vector_store.similarity_search_with_relevance_scores(query, k=k)
-    return [
-        {
-            "document": document,
-            "score": float(score),
-            "explanation": explain_match(query, document, float(score)),
-        }
-        for document, score in document_scores
-    ]
+    document_distances = vector_store.similarity_search_with_score(query, k=k)
+    retrieved_documents = []
+    for document, faiss_distance in document_distances:
+        # Vectors are L2-normalised when the index is built. For unit vectors,
+        # squared L2 distance is ``2 - (2 * cosine_similarity)``.
+        cosine_similarity = 1 - (float(faiss_distance) / 2)
+        retrieved_documents.append(
+            {
+                "document": document,
+                "faiss_distance": float(faiss_distance),
+                "cosine_similarity": cosine_similarity,
+            }
+        )
+    return retrieved_documents
 
 
 def create_chunk_preview(document: Document) -> str:
@@ -102,8 +77,8 @@ def print_retrieval_debug(retrieved_documents: list[ScoredDocument]) -> None:
         document = result["document"]
         source = document.metadata.get("source", "unknown source")
         print(f"\nRank {rank}")
-        print(f"Score: {result['score']:.4f}")
-        print(f"Explanation: {result['explanation']}")
+        print(f"FAISS distance (lower is closer): {result['faiss_distance']:.4f}")
+        print(f"Cosine similarity (higher is closer): {result['cosine_similarity']:.4f}")
         print(f"Source: {source}")
         print(f"Text: {create_chunk_preview(document)}")
         print(f"Start line: {document.metadata.get('start_line', 'unknown')}")

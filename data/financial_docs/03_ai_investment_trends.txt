@@ -5,44 +5,29 @@ Source: Northstar Research, fictional training corpus
 
 Cycle overview
 Corporate investment in artificial intelligence remained concentrated in hyperscale cloud platforms,
-semiconductor supply chains, and enterprise-software experimentation. The main investment question is
-shifting from the volume of capital expenditure to the quality of returns. Early demand for AI
+semiconductor supply chains, and enterprise-software experimentation. The investment question is
+shifting from the volume of capital expenditure to the quality of returns. Early demand for
 accelerators and networking equipment was visible in supplier order books. The next phase requires
 cloud providers to convert compute capacity into recurring revenue and enterprise customers to move
 from pilots to production deployments.
 
-Infrastructure layer
-The AI Infrastructure Group includes accelerator designers, memory suppliers, networking vendors,
-server assemblers, data-centre landlords, and power-equipment companies. Aggregate 2026 capital
-expenditure by the four largest fictional cloud platforms is expected to reach 245 billion dollars,
-up 32 percent from 2025. Equipment lead times have shortened in several categories. This does not
-automatically signal weak demand; it could indicate improved supply. It does reduce the scarcity
-premium embedded in some infrastructure valuations.
-
 Cloud monetisation
-Cloud platforms have introduced reserved AI capacity, consumption-based inference services, and
-developer tools. Revenue recognition differs across these products, so reported AI revenue may not
-match the current scale of capital expenditure. Useful measures are cloud-consumption growth,
-utilisation of deployed accelerators, contract duration, pricing per workload, and the percentage of
-enterprise pilots that become production workloads. Large customer pipelines are weaker evidence than
-delivered revenue and sustained usage.
-
-Enterprise adoption
-Early deployments focus on coding assistance, customer support, document search, fraud detection,
-and marketing content. Return on investment is clearest when an AI application reduces labour time or
-increases conversion within an existing workflow. Adoption can stall because of data quality, security
-review, model accuracy, integration cost, or uncertain ownership of business processes. Infrastructure
-demand occurs early, while broad software monetisation may occur later and less evenly.
+Cloud platforms offer reserved AI capacity, consumption-based inference services, and developer tools.
+Revenue recognition differs across these products, so reported AI revenue may not match the current
+scale of capital expenditure. Useful measures are cloud-consumption growth, utilisation of deployed
+accelerators, contract duration, pricing per workload, and the percentage of enterprise pilots that
+become production workloads. Large customer pipelines are weaker evidence than delivered revenue and
+sustained usage.
 
 Power and physical capacity
-Data-centre power availability is a material bottleneck. In the Northern Grid region, new high-density
-data-centre connections can require 24 to 36 months, longer than server delivery. Transmission
-upgrades, transformers, cooling systems, and long-term power purchase agreements are part of the AI
-supply chain. Capacity announcements without secured power should be assessed differently from those
-supported by contracted electricity and construction permits.
+Data-centre power availability is a material bottleneck. In the fictional NorthGrid region, new
+high-density data-centre connections can require 24 to 36 months, longer than server delivery.
+Transmission upgrades, transformers, cooling systems, and long-term power purchase agreements are
+part of the AI supply chain. Capacity announcements without secured power should be assessed
+differently from projects supported by contracted electricity and construction permits.
 
 Financial trade-offs
 Accelerated capital expenditure can support future revenue but initially lowers free cash flow and
 raises depreciation. A healthy outcome combines rising utilisation, stable pricing, and increasing
 inference revenue. A weaker outcome combines idle capacity, price competition, and higher depreciation.
-High interest rates amplify this distinction by increasing the discount rate for distant cash flows.
+High interest rates amplify the valuation impact of this distinction.
