@@ -9,7 +9,7 @@ from src.pipeline import run_pipeline
 load_dotenv()
 
 SAMPLE_QUESTION = (
-    "What are the key risks for US technology equities given interest rates and AI growth trends?"
+    '\"What are the key risks for US technology equities given interest rates and AI growth trends?\"'
 )
 
 
