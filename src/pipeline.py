@@ -10,6 +10,8 @@ from src.ingestion import create_vector_store, load_documents, split_documents
 from src.prompts import create_prompt_template
 from src.retrieval import print_retrieval_debug, retrieve_with_scores
 
+LLM_MODEL = "gpt-4o-mini"
+
 
 def format_documents(documents: list[Document]) -> str:
     """Combine retrieved document chunks into prompt context.
@@ -54,7 +56,7 @@ def create_rag_chain() -> Runnable[str, str]:
     chunks = split_documents(documents)
     vector_store = create_vector_store(chunks)
     prompt = create_prompt_template()
-    llm = ChatOpenAI(model="gpt-4.1-mini")
+    llm = ChatOpenAI(model=LLM_MODEL)
 
     def prepare_prompt_inputs(question: str) -> dict[str, str]:
         """Build prompt inputs for one question using the prepared vector store.
